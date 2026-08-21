@@ -17,12 +17,9 @@ rm(list = ls())
 
 # Load libraries
 library(tidyverse)
-library(infotheo)
 library(readxl)
 library(zoo)
 library(grid)
-library(cowplot)
-library(patchwork)
 
 # Create output directory if it does not exist yet.
 dir.create("Results", showWarnings = FALSE)

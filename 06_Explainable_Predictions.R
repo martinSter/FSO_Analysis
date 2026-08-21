@@ -17,7 +17,6 @@ rm(list = ls())
 
 # Load libraries
 library(tidyverse)
-library(tidymodels)
 
 # Load data from previous step.
 out <- read_rds("Results/out.rds")

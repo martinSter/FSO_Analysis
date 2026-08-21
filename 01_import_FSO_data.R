@@ -17,8 +17,6 @@ rm(list = ls())
 
 # Load libraries
 library(tidyverse)
-library(tidymodels)
-library(infotheo)
 library(readxl)
 library(zoo)
 

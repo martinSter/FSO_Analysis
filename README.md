@@ -37,8 +37,8 @@ and populated by running them in order; it is not tracked in git (see
 
 ## Requirements
 
-R packages: `tidyverse`, `tidymodels`, `infotheo`, `readxl`, `zoo`, `pROC`,
-`cowplot`, `patchwork`.
+R packages: `tidyverse`, `tidymodels` (only used in `07_Evaluate_TREE_Testset.R`),
+`readxl`, `zoo`, `grid`, `pROC`.
 
 ## Note
 
