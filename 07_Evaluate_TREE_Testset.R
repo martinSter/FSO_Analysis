@@ -1,12 +1,12 @@
 # *****************************************************
-# -------------------- VET 2025 -----------------------
+# -------------------- VET Study ----------------------
 #
 # Fachhochschule Nordwestschweiz
 # Riggenbachstrasse 16
 # 4600 Olten
 #
 # Author: Martin Sterchi
-# Date: 09.04.2026
+# Date: 21.08.2026
 # Description: Validate all FSO models on TREE testset
 #
 # *****************************************************

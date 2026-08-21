@@ -1,12 +1,12 @@
 # *****************************************************
-# -------------------- VET 2025 -----------------------
+# -------------------- VET Study ----------------------
 #
 # Fachhochschule Nordwestschweiz
 # Riggenbachstrasse 16
 # 4600 Olten
 #
 # Author: Martin Sterchi
-# Date: 12.03.2025
+# Date: 21.08.2026
 # Description: Bayesian Estimation
 #
 # *****************************************************
