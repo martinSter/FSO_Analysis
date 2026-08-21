@@ -131,12 +131,6 @@ df2018_eb$indiv_mle <- df2018_eb$LVA / df2018_eb$Total
 df2018_eb$eb_posterior_mean <- (a_hat + df2018_eb$LVA) / (a_hat + b_hat + df2018_eb$Total)
 df2018_eb$eb_posterior_median <- (a_hat + df2018_eb$LVA - 1/3) / (a_hat + b_hat + df2018_eb$Total - 2/3)
 
-# Prepare output for combining the FSO and TREE data to one model.
-df2018_eb |> 
-  select(Jobs, Total, LVA) |> 
-  mutate(a_hat = a_hat, b_hat = b_hat) |> 
-  write_delim("informative_prior_FSO.csv", delim = ";")
-
 # *****************************************************
 # 4. Visualization of results -------------------------
 
