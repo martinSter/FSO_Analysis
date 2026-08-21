@@ -24,8 +24,11 @@ library(grid)
 library(cowplot)
 library(patchwork)
 
+# Create output directory if it does not exist yet.
+dir.create("Results", showWarnings = FALSE)
+
 # Load data from previous step.
-df2018 <- read_rds("RES/df2018.rds")
+df2018 <- read_rds("Results/df2018.rds")
 
 # *****************************************************
 # 2. Duration -----------------------------------------
@@ -824,4 +827,4 @@ ggsave("Plots/MI.pdf", plot = p_mi, width = 10,  height = 5,  units = "cm")
 # 6. Save results -------------------------------------
 
 # Save result as RDS file.
-write_rds(df2018_eb, "RES/df2018_eb.rds")
+write_rds(df2018_eb, "Results/df2018_eb.rds")

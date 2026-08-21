@@ -9,9 +9,8 @@
 .DS_Store
 Thumbs.db
 
-# Generated intermediate results
-RES/*
-!RES/.gitkeep
+# Generated intermediate results (created automatically by the scripts)
+Results/
 
 # Generated figures
 Plots/

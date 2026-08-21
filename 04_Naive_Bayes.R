@@ -19,8 +19,11 @@ rm(list = ls())
 library(tidyverse)
 library(tidymodels)
 
+# Create output directory if it does not exist yet.
+dir.create("Results", showWarnings = FALSE)
+
 # Load data from previous step.
-df2018 <- read_rds("RES/df2018.rds")
+df2018 <- read_rds("Results/df2018.rds")
 
 
 # *****************************************************
@@ -229,5 +232,5 @@ out_TNB$Nationality[out_TNB$Nationality == "Lernende auslÃ¤ndischer StaatsangehÃ
 # 8. Save results -------------------------------------
 
 # Save result as RDS file.
-write_rds(out_TNB, "RES/out_TNB.rds")
+write_rds(out_TNB, "Results/out_TNB.rds")
 

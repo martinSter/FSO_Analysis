@@ -20,8 +20,8 @@ Run the scripts in order:
 | `06_Explainable_Predictions.R` | Log-odds decomposition plot for individual predictions. |
 | `07_Evaluate_TREE_Testset.R` | Validates all FSO-derived models against the TREE train/test set. |
 
-Each script reads its inputs from `Data/` and/or `RES/`, and writes
-intermediate `.rds` results to `RES/`.
+Each script reads its inputs from `Data/` and/or `Results/`, and writes
+intermediate `.rds` results to `Results/`.
 
 ## Data
 
@@ -31,8 +31,9 @@ intermediate `.rds` results to `RES/`.
   produced by the companion TREE repository and **not included here**.
   Copy them into `Data/` before running `07_Evaluate_TREE_Testset.R`.
 
-`RES/` is populated by running the scripts in order and is not tracked in
-git (see `.gitignore`).
+`Results/` is created automatically by the scripts (`dir.create("Results", ...)`)
+and populated by running them in order; it is not tracked in git (see
+`.gitignore`).
 
 ## Requirements
 

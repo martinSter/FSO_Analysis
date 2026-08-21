@@ -22,6 +22,9 @@ library(infotheo)
 library(readxl)
 library(zoo)
 
+# Create output directory if it does not exist yet.
+dir.create("Results", showWarnings = FALSE)
+
 # *****************************************************
 # 2. Import and preprocess 2018 cohort ----------------
 
@@ -137,5 +140,5 @@ df2019$Jobs[df2019$Jobs == "Apparateglasbläser/in EFZ"] <- "Glasapparatebauer/i
 # 5. Save results -------------------------------------
 
 # Save result as RDS file.
-write_rds(df2018, "RES/df2018.rds")
-write_rds(df2019, "RES/df2019.rds")
+write_rds(df2018, "Results/df2018.rds")
+write_rds(df2019, "Results/df2019.rds")

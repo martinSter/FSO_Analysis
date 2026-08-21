@@ -20,7 +20,7 @@ library(tidyverse)
 library(tidymodels)
 
 # Load data from previous step.
-out <- read_rds("RES/out.rds")
+out <- read_rds("Results/out.rds")
 
 
 # *****************************************************

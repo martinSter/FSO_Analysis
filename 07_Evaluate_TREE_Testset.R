@@ -35,9 +35,9 @@ train <- read_rds("Data/train_BFS.rds")
 test <- read_rds("Data/test_BFS.rds")
 
 # Import estimated models (based on FSO data)
-out <- read_rds("RES/out.rds") # Tree-augmented Naive Bayes
-out_TNB <- read_rds("RES/out_TNB.rds") # True Naive Bayes
-out_EB <- read_rds("RES/df2018_eb.rds") # Empirical Bayes
+out <- read_rds("Results/out.rds") # Tree-augmented Naive Bayes
+out_TNB <- read_rds("Results/out_TNB.rds") # True Naive Bayes
+out_EB <- read_rds("Results/df2018_eb.rds") # Empirical Bayes
 
 # Sufficient statistics (based on FSO data).
 # n1: number of premature terminations in 2018 cohort
