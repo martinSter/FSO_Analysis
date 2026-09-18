@@ -91,7 +91,7 @@ p_dur_freq <- dur |>
 p_dur_freq
 
 # Export
-ggsave("Results/dur_marginal.pdf", plot = p_dur_freq, width = 7,  height = 3,  units = "cm")
+# ggsave("Results/dur_marginal.pdf", plot = p_dur_freq, width = 7,  height = 3,  units = "cm")
 
 # Cond. probability p(Duration | Term. or no term.)
 p_dur_odds <- dur |> 
@@ -135,7 +135,7 @@ p_dur_odds <- dur |>
 p_dur_odds
 
 # Export
-ggsave("Results/dur_odds.pdf", plot = p_dur_odds, width = 7,  height = 5,  units = "cm")
+# ggsave("Results/dur_odds.pdf", plot = p_dur_odds, width = 7,  height = 5,  units = "cm")
 
 
 # *****************************************************
@@ -206,7 +206,7 @@ p_gen_freq <- gen |>
 p_gen_freq
 
 # Export
-ggsave("Results/gen_marginal.pdf", plot = p_gen_freq, width = 7,  height = 3,  units = "cm")
+# ggsave("Results/gen_marginal.pdf", plot = p_gen_freq, width = 7,  height = 3,  units = "cm")
 
 # Cond. probability p(Duration | Term. or no term.)
 p_gen_odds <- gen |> 
@@ -251,7 +251,7 @@ p_gen_odds <- gen |>
 p_gen_odds
 
 # Export
-ggsave("Results/gen_odds.pdf", plot = p_gen_odds, width = 7,  height = 5,  units = "cm")
+# ggsave("Results/gen_odds.pdf", plot = p_gen_odds, width = 7,  height = 5,  units = "cm")
 
 
 # *****************************************************
@@ -324,7 +324,7 @@ p_mig_freq <- mig |>
 p_mig_freq
 
 # Export
-ggsave("Results/mig_marginal.pdf", plot = p_mig_freq, width = 7, height = 3,  units = "cm")
+# ggsave("Results/mig_marginal.pdf", plot = p_mig_freq, width = 7, height = 3,  units = "cm")
 
 # Cond. probability p(Duration | Term. or no term.)
 p_mig_odds <- mig |> 
@@ -370,7 +370,7 @@ p_mig_odds <- mig |>
 p_mig_odds
 
 # Export
-ggsave("Results/mig_odds.pdf", plot = p_mig_odds, width = 7, height = 5,  units = "cm")
+# ggsave("Results/mig_odds.pdf", plot = p_mig_odds, width = 7, height = 5,  units = "cm")
 
 
 # *****************************************************
@@ -422,7 +422,7 @@ p_nt <- numterm |>
 p_nt
 
 # Export
-ggsave("Results/number_term.pdf", plot = p_nt, width = 7,  height = 4,  units = "cm")
+# ggsave("Results/number_term.pdf", plot = p_nt, width = 7,  height = 4,  units = "cm")
 
 
 # *****************************************************
@@ -492,7 +492,7 @@ p_time <- time |>
 p_time
 
 # Export
-ggsave("Results/term_time.pdf", plot = p_time, width = 8,  height = 5,  units = "cm")
+# ggsave("Results/term_time.pdf", plot = p_time, width = 8,  height = 5,  units = "cm")
 
 
 # *****************************************************
@@ -563,7 +563,7 @@ p_reentry <- reentry |>
 p_reentry
 
 # Export
-ggsave("Results/reentry.pdf", plot = p_reentry, width = 8,  height = 5,  units = "cm")
+# ggsave("Results/reentry.pdf", plot = p_reentry, width = 8,  height = 5,  units = "cm")
 
 
 # *****************************************************
@@ -616,5 +616,5 @@ p_reentry <- reentry_next |>
 p_reentry
 
 # Export
-ggsave("Results/reentry_next.pdf", plot = p_reentry, width = 10,  height = 5,  units = "cm")
+# ggsave("Results/reentry_next.pdf", plot = p_reentry, width = 10,  height = 5,  units = "cm")
 

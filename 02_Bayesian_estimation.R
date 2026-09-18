@@ -254,7 +254,7 @@ p1 <- ggplot(data = dfplot, aes(x = Jobs, y = eb_posterior_mean)) +
 p1
 
 # Export
-# ggsave("Plots/eb.pdf", plot = p1, width = 14,  height = 30,  units = "cm")
+# ggsave("Results/eb.pdf", plot = p1, width = 14,  height = 30,  units = "cm")
 
 # Frequencies
 p2 <- ggplot(data = dfplot, aes(x = Jobs, y = Total.2018)) +
@@ -287,7 +287,7 @@ p2 <- ggplot(data = dfplot, aes(x = Jobs, y = Total.2018)) +
 p2
 
 # Export
-# ggsave("Plots/eb_freq.pdf", plot = p2, width = 5,  height = 30,  units = "cm")
+# ggsave("Results/eb_freq.pdf", plot = p2, width = 5,  height = 30,  units = "cm")
 
 # Absolute percentage errors
 p3 <- ggplot(data = dfplot, aes(x = Jobs, y = rel_error, alpha = better)) +
@@ -323,7 +323,7 @@ p3 <- ggplot(data = dfplot, aes(x = Jobs, y = rel_error, alpha = better)) +
 p3
 
 # Export
-# ggsave("Plots/eb_rel_error.pdf", plot = p3, width = 5,  height = 30,  units = "cm")
+# ggsave("Results/eb_rel_error.pdf", plot = p3, width = 5,  height = 30,  units = "cm")
 
 
 # *****************************************************

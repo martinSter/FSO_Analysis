@@ -17,6 +17,7 @@ rm(list = ls())
 
 # Load libraries
 library(tidyverse)
+library(readxl)
 
 # Create output directory if it does not exist yet.
 dir.create("Results", showWarnings = FALSE)
