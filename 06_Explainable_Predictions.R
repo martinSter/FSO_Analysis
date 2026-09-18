@@ -18,7 +18,7 @@ rm(list = ls())
 # Load libraries
 library(tidyverse)
 
-# Load data from previous step.
+# Load data from previous step (the tree-augmented NB).
 out <- read_rds("Results/out.rds")
 
 
@@ -34,7 +34,7 @@ out <- read_rds("Results/out.rds")
 n1 <- 13039
 n0 <- 40311
 
-# This is the prior probability of prem. term. with 
+# This is the prior probability of prem. term. with
 # Laplace smoothing (which is not really necessary here).
 prior_LVA <- (n1 + 1) / (n0 + n1 + 2)
 
@@ -44,20 +44,21 @@ prior_LVA <- (n1 + 1) / (n0 + n1 + 2)
 
 # Choose observation index here (the three obs. I used
 # so far are given already).
-i <- 2079
-# i <- 1914
-# i <- 3968
-# i <- 1896
+# i <- 2079 # Results in lowest posterior prob.
+i <- 1914 # Results in highest posterior prob.
 
 # Prepare the data for explainable pred. plot.
 dfPlot <- out[i, ] |> 
+  # Get only the conditional probabilities.
   select(LVA.type:no_LVA.profession) |> 
+  # Convert to long format.
   pivot_longer(
     cols = everything(),
     names_to = c("target", "variable"),
     names_pattern = "(.*)\\.(.*)",
     values_to = "prob"
   ) |> 
+  # Join the actual feature values.
   left_join(
     out[i, ] |> 
       select(Type:Job) |> 
@@ -65,7 +66,9 @@ dfPlot <- out[i, ] |>
       pivot_longer(everything(), names_to = "variable", values_to = "value"),
     by = "variable"
   ) |> 
+  # Spread by LVA vs. no LVA
   pivot_wider(names_from = target, values_from = prob) |> 
+  # For each feature, compute log of ratio of LVA prob. vs. no LVA prob.
   mutate(LogRatio = log(LVA / no_LVA))
 
 # More prep. for visualization.
@@ -85,9 +88,7 @@ dfPlot$value[dfPlot$value == "Fachmann/-frau Information und Dokumentation EFZ"]
 # 4. Plot ---------------------------------------------
 
 # Function to go from log-odds back to prob.
-log_odds_prob <- function(x) {
-  exp(x) / (1 + exp(x))
-}
+log_odds_prob <- function(x) exp(x) / (1 + exp(x))
 
 # Compute log-odds for the prior.
 log_odds_prior <- log(prior_LVA / (1 - prior_LVA))
@@ -99,9 +100,7 @@ dfPlot |>
   geom_hline(yintercept = 0, colour = "grey30", linewidth = 0.3, linetype = "dotted") +
   geom_hline(yintercept = dfPlot$LogRatio[dfPlot$variable == "sum"] + log_odds_prior, colour = "#DC267F", linewidth = 0.3, linetype = "dotted") +
   geom_segment(aes(x = variable, xend = variable, y = log_odds_prior, yend = log_odds_prior + LogRatio, color = highlight), linewidth = 18) +
-  # geom_segment(data = dfPlot |> filter(variable != "sum") |> arrange(abs(LogRatio)),
-  #   aes(x = 4.65, xend = 5.35, y = log_odds_prior + cumsum(LogRatio), yend = log_odds_prior + cumsum(LogRatio)), color = "white", linewidth = 0.5, linetype = "solid") +
-  geom_text(aes(x = variable, y = log_odds_prior, label = value), hjust = 0, nudge_x = -0.05, nudge_y = 0.05, angle = 90, size = 2.5, colour = "grey30") +
+  geom_text(aes(x = variable, y = log_odds_prior, label = value), hjust = 0, nudge_x = -0.05, nudge_y = 0.05, angle = 90, size = 2.5, colour = "grey30", na.rm = TRUE) +
   scale_color_manual(values = c("0" = "grey", "1" = "#1A85FF", "2" = "#DC267F"), guide = "none") +
   scale_x_discrete(name = NULL, labels = c(
     expression(paste(x[O]," | ",x[D])), 
@@ -145,7 +144,5 @@ dfPlot |>
   )
 
 # Export
-# ggsave("Plots/plotLogOdds1.pdf", width = 10,  height = 9, units = "cm")
-# ggsave("Plots/plotLogOdds2.pdf", width = 10,  height = 9, units = "cm")
-# ggsave("Plots/plotLogOdds3.pdf", width = 10,  height = 9, units = "cm")
+# ggsave("Results/plotLogOdds.pdf", width = 10,  height = 9, units = "cm")
 

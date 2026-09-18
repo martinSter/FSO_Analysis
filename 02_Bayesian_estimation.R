@@ -25,6 +25,7 @@ dir.create("Results", showWarnings = FALSE)
 df2018 <- read_rds("Results/df2018.rds")
 df2019 <- read_rds("Results/df2019.rds")
 
+
 # *****************************************************
 # 2. Simple (pooled) model ----------------------------
 
@@ -43,13 +44,13 @@ a <- 1; b <- 1
 n1 <- 13039
 n0 <- 40311
 
-# MAP estimate of Beta posterior (analytical result)
+# MAP estimate of Beta posterior (analytical result).
 (theta_map <- n1 / (n0 + n1))
 
-# Posterior mean of Beta posterior (analytical result)
+# Posterior mean of Beta posterior (analytical result).
 (theta_mean <- (a + n1) / (a + b + n0 + n1))
 
-# Posterior variance and standard deviations (analytical result)
+# Posterior variance and standard deviations (analytical result).
 (posterior_var <- ((a + n1) * (b + n0)) / ((a + n1 + b + n0)^2 * (a + n1 + b + n0 + 1)))
 (posterior_sd <- sqrt(posterior_var))
 
@@ -58,17 +59,27 @@ plot(x = seq(0, 1, .001),
      y = dbeta(seq(0, 1, .001), a + n1, b + n0), 
      type = "l", xlab = "Theta", ylab = "Density")
 
-# As a check: approximation via SEM of sample proportion
+# As a check: approximation via SEM of sample proportion.
 sqrt(theta_mean * (1 - theta_mean) / (n0 + n1))
+
 
 # *****************************************************
 # 2.2 Validation --------------------------------------
 
+# Basically, here we compute a 95% credible interval 
+# for the true number of premature terminations in 
+# the 2019 cohort.
+
 # Set seed for reproducibility
 set.seed(42)
 
+# Number of apprenticeships in 2019 cohort.
+n_2019 <- sum(df2019$Total)
+
 # Draw samples from posterior predictive distribution.
-samp <- rbinom(1e6, size = 52937, prob = rbeta(1e6, a + n1, b + n0))
+# We sample from a binomial distribution with n = 52937
+# and sample the "success" probability from beta distr.
+samp <- rbinom(1e6, size = n_2019, prob = rbeta(1e6, a + n1, b + n0))
 
 # Compute 95% credible interval
 quantile(samp, probs = c(0.025, 0.975))
@@ -81,40 +92,41 @@ quantile(samp, probs = c(0.025, 0.975))
 # 3.1 Find optimal prior parameters -------------------
 
 # Function to be optimized.
-# Note: partial help by ChatGPT
+# We want to maximize the log-likelihood.
 log_likelihood <- function(par, data) {
-  
-  # Get the hyperparameters of the prior
+  # Get the hyperparameters of the prior.
   a <- par[1]
   b <- par[2]
-  
-  # Get the data
+  # Get the data (column Total and LVA).
   n <- data$Total
   x <- data$LVA
-  
-  # Prior constraints to ensure positivity
+  # Prior constraints to ensure positivity.
   if (a <= 0 || b <= 0) return(-Inf)
-  
   # Log-likelihood computation
   log_likelihood <- sum(lbeta(x + a, n - x + b) - lbeta(a, b))
-  
   # The minus is necessery because the default is minimization
   return(-log_likelihood)
-  
 }
 
 # Initial parameter values for prior parameters a and b.
 x0 <- c(1, 1)
 
-# Optimization with a lower bound on parameters
+# Optimization with a lower bound on parameters.
+# X0 is what is passed as the "par" argument.
 result <- optim(x0, log_likelihood, data = df2018, method = "L-BFGS-B", lower = c(0.001, 0.001))
 
-# Extract optimal parameter values
+# Extract optimal hyperparameter values.
 (a_hat <- result$par[1])
 (b_hat <- result$par[2])
 
+
 # *****************************************************
 # 3.2 Estimation of parameters ------------------------
+
+# This is where we compute the Empirical Bayes termination
+# rates per occupation using the optimal hyperparameter 
+# values from above. Additionally, we compute the pooled
+# MLE and the individual MLE.
 
 # We add them all to a new dataframe 'df2018_eb'.
 df2018_eb <- df2018
@@ -124,15 +136,16 @@ df2018_eb <- df2018
 df2018_eb$pooled_mle <- sum(df2018_eb$LVA) / sum(df2018_eb$Total)
 
 # Estimate them all separately.
-# Problem: sparse data problem.
+# Problem: sparse data, this may lead to overfit termination rates.
 df2018_eb$indiv_mle <- df2018_eb$LVA / df2018_eb$Total
 
-# Better solution: hierarchical (two-level) model
+# Better solution: hierarchical (two-level) model (EB)
 df2018_eb$eb_posterior_mean <- (a_hat + df2018_eb$LVA) / (a_hat + b_hat + df2018_eb$Total)
 df2018_eb$eb_posterior_median <- (a_hat + df2018_eb$LVA - 1/3) / (a_hat + b_hat + df2018_eb$Total - 2/3)
 
+
 # *****************************************************
-# 4. Visualization of results -------------------------
+# 3.3 Visualization of results ------------------------
 
 # First we get the data for the next few plots ready.
 dfplot <- df2018_eb |>
@@ -312,10 +325,17 @@ p3
 # Export
 # ggsave("Plots/eb_rel_error.pdf", plot = p3, width = 5,  height = 30,  units = "cm")
 
-# *****************************************************
-# 5. Validation --------------------------------------
 
-# Now we compute the deviations between true label and predictions.
+# *****************************************************
+# 4. Validation --------------------------------------
+
+# More precisely, we evaluate how well the four different
+# ways of computing a termination rate per occupation perform
+# when it comes to predicting the number of terminations per
+# occupation in the 2019 cohort.
+
+# Now we compute the deviations between true number of LVA and predictions.
+# Actually, we compute percentage errors already here.
 dfplot <- dfplot |> 
   mutate(
     perc_err_pooled_mle = (LVA.2019 - pred_pooled_mle) / LVA.2019,
@@ -330,19 +350,16 @@ dfplot <- dfplot |>
 100 * mean(abs(dfplot$perc_err_eb_posterior_mean))
 100 * mean(abs(dfplot$perc_err_eb_posterior_median))
 
-sum((dfplot$LVA.2019 - dfplot$pred_pooled_mle)^2) / sum((dfplot$LVA.2019 - mean(dfplot$LVA.2019))^2)
-sum((dfplot$LVA.2019 - dfplot$pred_indiv_mle)^2) / sum((dfplot$LVA.2019 - mean(dfplot$LVA.2019))^2)
-sum((dfplot$LVA.2019 - dfplot$pred_eb_posterior_mean)^2) / sum((dfplot$LVA.2019 - mean(dfplot$LVA.2019))^2)
-sum((dfplot$LVA.2019 - dfplot$pred_eb_posterior_median)^2) / sum((dfplot$LVA.2019 - mean(dfplot$LVA.2019))^2)
-
-# Evaluate the predictions with MSE.
+# Evaluate the predictions with RMSE.
 sqrt(mean(dfplot$perc_err_pooled_mle^2))
 sqrt(mean(dfplot$perc_err_indiv_mle^2))
 sqrt(mean(dfplot$perc_err_eb_posterior_mean^2))
 sqrt(mean(dfplot$perc_err_eb_posterior_median^2))
 
+
 # *****************************************************
-# 6. Save results -------------------------------------
+# 5. Save results -------------------------------------
 
 # Save result as RDS file.
 write_rds(df2018_eb, "Results/df2018_eb.rds")
+

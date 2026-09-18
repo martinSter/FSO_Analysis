@@ -7,7 +7,7 @@
 #
 # Author: Martin Sterchi
 # Date: 21.08.2026
-# Description: Validate all FSO models on TREE testset
+# Description: Validate all FSO models on TREE test set
 #
 # *****************************************************
 # 1. Prepare setup ------------------------------------
@@ -19,18 +19,9 @@ rm(list = ls())
 library(tidyverse)
 library(tidymodels)
 
-# Custom equal error rate function
-eer <- function(truth, prob) {
-  roc_obj <- pROC::roc(truth, prob, quiet = TRUE)
-  coords <- pROC::coords(roc_obj, x = "all", ret = c("threshold", "specificity", "sensitivity"), transpose = FALSE)
-  fpr <- 1 - coords$specificity
-  fnr <- 1 - coords$sensitivity
-  idx <- which.min(abs(fpr - fnr))
-  eer <- mean(c(fpr[idx], fnr[idx]))
-  return(eer)
-}
-
-# Import TREE testset
+# Import TREE testset.
+# NOTE: the TREE data cannot be provided publicly.
+# You may request them from https://www.tree.unibe.ch/index_eng.html
 train <- read_rds("Data/train_BFS.rds")
 test <- read_rds("Data/test_BFS.rds")
 
@@ -225,12 +216,6 @@ average_precision(train, LVA, eb_posterior_mean)
 average_precision(train, LVA, pred_LVA_NB)
 average_precision(train, LVA, pred_LVA_TNB)
 
-# Equal error rate
-eer(train$LVA, train$pred_BL)
-eer(train$LVA, train$eb_posterior_mean)
-eer(train$LVA, train$pred_LVA_NB)
-eer(train$LVA, train$pred_LVA_TNB)
-
 
 # *****************************************************
 # 5. Evaluate models on test set ----------------------
@@ -254,12 +239,6 @@ average_precision(test, LVA, pred_BL)
 average_precision(test, LVA, eb_posterior_mean)
 average_precision(test, LVA, pred_LVA_NB)
 average_precision(test, LVA, pred_LVA_TNB)
-
-# Equal error rate
-eer(test$LVA, test$pred_BL)
-eer(test$LVA, test$eb_posterior_mean)
-eer(test$LVA, test$pred_LVA_NB)
-eer(test$LVA, test$pred_LVA_TNB)
 
 # Encode target numerically for Brier score.
 target_numeric <- ifelse(test$LVA == "Discontinue before completion", 1, 0)

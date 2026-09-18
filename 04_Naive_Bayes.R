@@ -45,25 +45,30 @@ prior_LVA <- (n1 + 1) / (n0 + n1 + 2)
 # *****************************************************
 # 3. Duration -----------------------------------------
 
-# Cond. probability p(Duration | Term. or no term.)
+# This computes the conditional probabilities p(Duration | LVA).
+
+# Cond. probability p(Duration | Term. or no term.).
 df_type <- read_excel("Data/su-d-15.10.03-06-Kohorte2018.xlsx", 
                       sheet = "T3", 
                       range = "A11:F19", 
                       col_names = c("Type", "Gender", "Total", "LVA_Total", "LVA_Contract", "LVA")) |> 
-  # Only keep the rows for totals (no gender partition necessary here)
+  # Only keep the rows for totals (no gender partition necessary here).
   filter(!is.na(Type)) |> 
-  # Reduce to relevant columns
+  # Reduce to relevant columns.
   select(Type, Total, LVA) |> 
-  # Compute the number of no premature terminations
+  # Compute the number of no premature terminations.
   mutate(no_LVA = Total - LVA) |> 
-  # Remove total
+  # Remove total.
   select(-Total) |> 
-  # Compute conditional probabilities so the prob. sum up to 1 for LVA and no LVA
-  # Includes Laplace smoothing
+  # Compute conditional probabilities so the prob. sum up to 1 for LVA and no LVA.
+  # Includes Laplace smoothing.
   mutate(
     LVA = (LVA + 1) / (sum(LVA) + 3),
     no_LVA = (no_LVA + 1) / (sum(no_LVA) + 3)
   )
+
+# Make sure the sum-to-1 constraint holds.
+all(sum(df_type$LVA) == 1, sum(df_type$no_LVA) == 1)
 
 
 # *****************************************************
@@ -83,6 +88,9 @@ df_gender <- read_excel("Data/su-d-15.10.03-06-Kohorte2018.xlsx",
     no_LVA = (no_LVA + 1) / (sum(no_LVA) + 2)
   ) |> 
   select(Gender, LVA, no_LVA)
+
+# Make sure the sum-to-1 constraint holds.
+all(sum(df_gender$LVA) == 1, sum(df_gender$no_LVA) == 1)
 
 
 # *****************************************************
@@ -105,6 +113,9 @@ df_nationality <- read_excel("Data/su-d-15.10.03-06-Kohorte2018.xlsx",
     no_LVA = (no_LVA + 1) / (sum(no_LVA) + 3)
   ) |> 
   select(Nationality, LVA, no_LVA)
+
+# Make sure the sum-to-1 constraint holds.
+all(sum(df_nationality$LVA) == 1, sum(df_nationality$no_LVA) == 1)
 
 
 # *****************************************************
@@ -146,9 +157,9 @@ df_profession <- bind_rows(
 df_profession$Type[df_profession$Job == "Anlagenführer/in EFZ"] <- "Eintrittskohorte EFZ 3 Jahre"
 df_profession$Type[df_profession$Job == "Automatikmonteur/in EFZ"] <- "Eintrittskohorte EFZ 3 Jahre"
 
-# Now we would like to have a row for all Job-Type combinations (even impossible ones)
+# Now we would like to have a row for all Job-Type combinations (even impossible ones).
 df_profession <- df_profession |> 
-  # For this we do a full joing with the cartesian product of jobs and types
+  # For this we do a full join with the Cartesian product of jobs and types.
   full_join(
     expand.grid(df_profession$Job, unique(df_profession$Type)) |> rename(Job = Var1, Type = Var2),
     by = c("Job", "Type")
@@ -157,7 +168,7 @@ df_profession <- df_profession |>
 # Now, we need to join the proper sums for normalization.
 df_profession <- df_profession |> 
   left_join(
-    # This computes sums over counts by type
+    # This computes sums over counts by type.
     df_profession |> summarize(
       temp1 = sum(LVA, na.rm = T), 
       temp11 = sum(!is.na(LVA)),
@@ -166,8 +177,8 @@ df_profession <- df_profession |>
       .by = Type),
     by = "Type"
   ) |> 
-  # Compute conditional probabilities so the prob. sum up to 1 for LVA and no LVA
-  # Includes Laplace smoothing
+  # Compute conditional probabilities so the prob. sum up to 1 for LVA and no LVA.
+  # Includes Laplace smoothing.
   mutate(
     LVA = (LVA + 1) / (temp1 + temp11),
     no_LVA = (no_LVA + 1) / (temp2 + temp21)
@@ -190,14 +201,14 @@ sum(df_profession$LVA[df_profession$Type == "Eintrittskohorte EFZ 4 Jahre"], na.
 
 # Here we now compute the NB predictions for all possible feature combinations.
 out_TNB <- df_type |> 
-  # We always make full joins to get all possible combinations
+  # We always make full joins to get all possible combinations.
   merge(df_gender, by = NULL, suffixes = c(".type", ".gender")) |> 
   merge(df_nationality, by = NULL) |> 
   merge(df_profession, by = "Type", suffixes = c(".nationality", ".profession")) |> 
-  # Order the columns differently
+  # Order the columns differently.
   select(Type, Gender, Nationality, Job, LVA.type, no_LVA.type, LVA.gender, no_LVA.gender,
          LVA.nationality, no_LVA.nationality, LVA.profession, no_LVA.profession) |> 
-  # Compute likelihoods
+  # Compute likelihoods.
   mutate(
     temp1 = LVA.type * LVA.gender * LVA.nationality * LVA.profession,
     temp2 = no_LVA.type * no_LVA.gender * no_LVA.nationality * no_LVA.profession,

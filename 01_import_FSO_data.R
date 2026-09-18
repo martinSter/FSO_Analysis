@@ -23,41 +23,47 @@ library(zoo)
 # Create output directory if it does not exist yet.
 dir.create("Results", showWarnings = FALSE)
 
+
 # *****************************************************
 # 2. Import and preprocess 2018 cohort ----------------
 
-# Import the data from Excel file (2018 cohort)
+# Import the data from Excel file (2018 cohort).
 df2018 <- read_excel("Data/su-d-15.10.03-06-Kohorte2018.xlsx", sheet = "T8a", range = "A8:D272")
 
-# Change column names
+# Change column names.
+# LVA = Lehrvertragsabbrüche (premature terminations)
+# Total = Total number of apprentices
 colnames(df2018) <- c("Groups", "Jobs", "Total", "LVA")
 
-# Remove first data row (it's the overall total)
+# Remove first data row (it's the overall total).
 df2018 <- df2018[-1, ]
 
-# Replace asterisks by NA
+# Replace asterisks by NA.
+# Asterisks mean that there are too few observations to indicate LVAs.
 df2018[df2018 == "*"] <- NA
 
-# Change data types
+# Change data types (due to the asterisks it was not a numeric column).
 df2018$LVA <- as.numeric(df2018$LVA)
 
-# Get only the groups in a separate dataframe
+# Get the occupation groups in a separate dataframe.
 df_groups <- df2018[!is.na(df2018$Groups), ]
 
-# For one category there is still a missing value, replace it by 0
+# For one category ("Musik und darstellende Kunst") there is still a missing value, 
+# replace it by 0.
 df_groups[is.na(df_groups)] <- 0
 
 # Fill missing values with the preceding value (locf = last observation carried forward).
 # This is so that all professions in the same group have the group identifier.
 df2018$Groups <- na.locf(df2018$Groups, na.rm = FALSE)
 
-# Remove the group rows from df
+# Remove the group rows from df2018.
 df2018 <- df2018[!(df2018$Jobs %in% df_groups$Jobs), ]
+
 
 # *****************************************************
 # 3. Imputation of "*" cells --------------------------
 
-# Join the LVA sums from df to df_groups and compute the difference.
+# Join the LVA sums from df2018 to df_groups and compute the difference.
 # Note: we need to know how many more LVA need to be imputed.
 df_groups <- df_groups |> 
   left_join(
@@ -89,10 +95,16 @@ df2018 <- df2018 |>
 # Plausi check:
 # This should be more or less equal to total number of LVA.
 # Only more or less cause we round numbers.
-df2018 |> summarise(sum(LVA), .by = Groups)
+sum(df2018$LVA) # new total of LVAs
+sum(df_groups$LVA) # true total of LVAs
+
 
 # *****************************************************
 # 4. Import and preprocess 2019 cohort ----------------
+
+# Here, we basically do the same thing as for the 2018 cohort except for the
+# whole procedure to impute "*" values. This is not needed cause we use the
+# 2019 cohort as a "test" set and not to estimate anything.
 
 # Import the data from Excel file
 df2019 <- read_excel("Data/su-d-15.10.03-06-Kohorte2019.xlsx", sheet = "T8a", range = "A8:D268")
@@ -120,19 +132,21 @@ sum(df2019$Total) == 52937
 # Matches: 2018 cohort --> 2019 cohort
 # Drucktechnologe/-technologin EFZ --> Medientechnologe/-technologin EFZ
 # Gewebegestalter/in EFZ --> Korb- und Flechtwerkgestalter/in EFZ
-# -> WARNING: I do not believe these are the same, they are two different professions.
-# Thus, I do not change the name in the 2019 cohort.
+# -> WARNING: I do not believe that these latter two are the same, 
+# they are two different professions. # Thus, I do not change the 
+# names in the 2019 cohort.
 # No entry in the 2018 cohort --> Industriekeramiker/in EFZ
 # No entry in the  2018 cohort --> Formenpraktiker/in EBA
 # Glasapparatebauer/in --> Apparateglasbläser/in EFZ
 # No entry in the  2018 cohort --> Geflügelfachmann/-frau EFZ
-# new in the 2019 cohort --> Restaurantfachmann/-frau EFZ (ab 2019)
-# new in the 2019 cohort --> Restaurantangestellte/r EBA (ab 2019)
+# new in the 2019 cohort --> Restaurantfachmann/-frau EFZ (neu ab 2019)
+# new in the 2019 cohort --> Restaurantangestellte/r EBA (neu ab 2019)
 
-# Change names of jobs in 2019 cohort for matching.
+# Change names of jobs in 2019 cohort so they match 2018 cohort.
 # Only for the ones we are certain that they simply have been renamed.
 df2019$Jobs[df2019$Jobs == "Medientechnologe/-technologin EFZ"] <- "Drucktechnologe/-technologin EFZ"
 df2019$Jobs[df2019$Jobs == "Apparateglasbläser/in EFZ"] <- "Glasapparatebauer/in"
+
 
 # *****************************************************
 # 5. Save results -------------------------------------
@@ -140,3 +154,4 @@ df2019$Jobs[df2019$Jobs == "Apparateglasbläser/in EFZ"] <- "Glasapparatebauer/i
 # Save result as RDS file.
 write_rds(df2018, "Results/df2018.rds")
 write_rds(df2019, "Results/df2019.rds")
+
